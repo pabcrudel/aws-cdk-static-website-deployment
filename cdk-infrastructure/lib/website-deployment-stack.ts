@@ -97,7 +97,7 @@ export class WebsiteDeploymentStack extends cdk.Stack {
 
     /** Deploying the built files from the frontend to the s3 hosting the website */
     new s3deploy.BucketDeployment(this, 'WebsiteBucketDeployment', {
-      sources: [s3deploy.Source.asset('../www'),],
+      sources: [s3deploy.Source.asset('../website'),],
       prune: false,
       destinationBucket: websiteBucket,
       distribution: cloudfrontDistribution,
