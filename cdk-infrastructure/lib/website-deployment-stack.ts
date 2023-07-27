@@ -35,5 +35,38 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       principals: [new iam.CanonicalUserPrincipal(
         cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
     }));
+
+    /** Cloudfront Response Headers Policy */
+    const responseHeaderPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersResponseHeaderPolicy', {
+      comment: 'Security headers response header policy',
+      securityHeadersBehavior: {
+        contentSecurityPolicy: {
+          override: true,
+          contentSecurityPolicy: "default-src 'self'"
+        },
+        strictTransportSecurity: {
+          override: true,
+          accessControlMaxAge: cdk.Duration.days(2 * 365),
+          includeSubdomains: true,
+          preload: true
+        },
+        contentTypeOptions: {
+          override: true
+        },
+        referrerPolicy: {
+          override: true,
+          referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN
+        },
+        xssProtection: {
+          override: true,
+          protection: true,
+          modeBlock: true
+        },
+        frameOptions: {
+          override: true,
+          frameOption: cloudfront.HeadersFrameOption.DENY
+        }
+      }
+    });
   }
 }
