@@ -42,15 +42,15 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       resources: [websiteBucket.arnForObjects('*')],
       principals: [new iam.CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
     });
+    
+    // Adding OAI user to the website bucket
+    websiteBucket.addToResourcePolicy(policyStatement);
 
-    // Displays the policy for CloudFront Origin Access Identity to access the S3 bucket
+    // Displays the policy for CloudFront OAI to access the S3 bucket on CloudFormation output
     new cdk.CfnOutput(this, 'AccessPolicyDetails', {
       value: policyStatement.toJSON(),
       description: 'Policy for CloudFront Origin Access Identity to access the S3 bucket',
     });
-
-    // Adding OAI user to the website bucket
-    websiteBucket.addToResourcePolicy(policyStatement);
 
     /** Cloudfront Response Headers Policy */
     const responseHeaderPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersResponseHeaderPolicy', {
