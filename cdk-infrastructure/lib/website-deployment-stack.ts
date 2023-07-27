@@ -106,7 +106,7 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       },
       errorResponses: [
         {
-          httpStatus: 404,
+          httpStatus: 403,
           responseHttpStatus: 404,
           responsePagePath: "/404.html"
         }
