@@ -19,11 +19,17 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       accessControl: s3.BucketAccessControl.PRIVATE,
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      /*
+      Not turned on the static website feature of the S3 service 
+      as it does not offer the caching and distribution benefits that the CloudFront service does.
+      */
     });
-    /*
-    Not turned on the static website feature of the S3 service 
-    as it does not offer the caching and distribution benefits that the CloudFront service does.
-    */
+
+    // Displays the S3 Bucket ARN and name on CloudFormation output
+    new cdk.CfnOutput(this, 'S3BucketDetails', {
+      value: `${websiteBucket.bucketName} (${websiteBucket.bucketArn})`,
+      description: 'Name and ARN of the S3 bucket hosting the website',
+    });    
 
     /** A CloudFront Origin Access Identity (OAI) user is granted read access to the S3 bucket objects through the bucket resource policy to enable user access via CloudFront. */
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(
