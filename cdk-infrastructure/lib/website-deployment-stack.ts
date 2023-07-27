@@ -27,7 +27,7 @@ export class WebsiteDeploymentStack extends cdk.Stack {
 
     // Displays the S3 Bucket ARN and name on CloudFormation output
     new cdk.CfnOutput(this, 'S3BucketDetails', {
-      value: `${websiteBucket.bucketName}\n${websiteBucket.bucketArn}`,
+      value: `Bucket name:\n${websiteBucket.bucketName}\nBucket ARN:\n${websiteBucket.bucketArn}`,
       description: 'Name and ARN of the S3 bucket hosting the website',
     });    
 
