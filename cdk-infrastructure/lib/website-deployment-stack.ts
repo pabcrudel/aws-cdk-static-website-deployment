@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
@@ -67,6 +68,21 @@ export class WebsiteDeploymentStack extends cdk.Stack {
           frameOption: cloudfront.HeadersFrameOption.DENY
         }
       }
+    });
+
+    /** Binding S3 bucket, OAI user and Response Headers Policy to the Cloudfront distribution */
+    const cloudfrontDistribution = new cloudfront.Distribution(this, 'CloudFrontDistribution', {
+      defaultRootObject: 'index.html',
+      minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
+      defaultBehavior: {
+        origin: new origins.S3Origin(websiteBucket, {
+          originAccessIdentity: cloudfrontOAI
+        }),
+        compress: true,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        responseHeadersPolicy: responseHeaderPolicy
+      },
     });
   }
 }
