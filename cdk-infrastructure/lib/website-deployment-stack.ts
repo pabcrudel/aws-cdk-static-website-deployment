@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -83,6 +84,14 @@ export class WebsiteDeploymentStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         responseHeadersPolicy: responseHeaderPolicy
       },
+    });
+
+    /** Deploying the built files from the frontend to the s3 hosting the website */
+    new s3deploy.BucketDeployment(this, 'WebsiteBucketDeployment', {
+      sources: [s3deploy.Source.asset('../www'),],
+      prune: false,
+      destinationBucket: websiteBucket,
+      distribution: cloudfrontDistribution,
     });
   }
 }
