@@ -48,7 +48,7 @@ export class WebsiteDeploymentStack extends cdk.Stack {
 
     // Displays the policy for CloudFront OAI to access the S3 bucket on CloudFormation output
     new cdk.CfnOutput(this, 'AccessPolicyDetails', {
-      value: policyStatement.toJSON(),
+      value: JSON.stringify(policyStatement.toStatementJson(), null, 2),
       description: 'Policy for CloudFront Origin Access Identity to access the S3 bucket',
     });
 
