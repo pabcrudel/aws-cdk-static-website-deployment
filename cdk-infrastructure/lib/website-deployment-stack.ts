@@ -27,22 +27,30 @@ export class WebsiteDeploymentStack extends cdk.Stack {
 
     // Displays the S3 Bucket ARN and name on CloudFormation output
     new cdk.CfnOutput(this, 'S3BucketDetails', {
-      value: `${websiteBucket.bucketName} (${websiteBucket.bucketArn})`,
+      value: `${websiteBucket.bucketName}\n${websiteBucket.bucketArn}`,
       description: 'Name and ARN of the S3 bucket hosting the website',
     });    
 
-    /** A CloudFront Origin Access Identity (OAI) user is granted read access to the S3 bucket objects through the bucket resource policy to enable user access via CloudFront. */
+    /** Creating A CloudFront Origin Access Identity (OAI) user */
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(
       this, 'CloudFrontOriginAccessIdentity'
     );
 
-    // Adding OAI user to the website bucket
-    websiteBucket.addToResourcePolicy(new iam.PolicyStatement({
+    /** Grant read access to the S3 bucket objects through the bucket resource policy to enable OAI user access via CloudFront */
+    const policyStatement = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
       resources: [websiteBucket.arnForObjects('*')],
-      principals: [new iam.CanonicalUserPrincipal(
-        cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
-    }));
+      principals: [new iam.CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
+    });
+
+    // Displays the policy for CloudFront Origin Access Identity to access the S3 bucket
+    new cdk.CfnOutput(this, 'AccessPolicyDetails', {
+      value: policyStatement.toJSON(),
+      description: 'Policy for CloudFront Origin Access Identity to access the S3 bucket',
+    });
+
+    // Adding OAI user to the website bucket
+    websiteBucket.addToResourcePolicy(policyStatement);
 
     /** Cloudfront Response Headers Policy */
     const responseHeaderPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersResponseHeaderPolicy', {
