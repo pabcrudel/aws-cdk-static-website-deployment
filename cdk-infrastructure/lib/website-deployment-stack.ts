@@ -86,6 +86,12 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       },
     });
 
+    // Displays CloudFront domain name on CloudFormation output
+    new cdk.CfnOutput(this, 'CloudFrontDomainName', {
+      value: cloudfrontDistribution.domainName,
+      description: 'Domain name of the CloudFront distribution',
+    });
+
     /** Deploying the built files from the frontend to the s3 hosting the website */
     new s3deploy.BucketDeployment(this, 'WebsiteBucketDeployment', {
       sources: [s3deploy.Source.asset('../www'),],
