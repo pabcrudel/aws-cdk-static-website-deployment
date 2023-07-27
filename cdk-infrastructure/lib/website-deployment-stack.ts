@@ -104,6 +104,13 @@ export class WebsiteDeploymentStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         responseHeadersPolicy: responseHeaderPolicy
       },
+      errorResponses: [
+        {
+          httpStatus: 404,
+          responseHttpStatus: 404,
+          responsePagePath: "/404.html"
+        }
+      ]
     });
 
     // Displays CloudFront domain name on CloudFormation output
