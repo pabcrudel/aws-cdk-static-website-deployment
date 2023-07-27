@@ -71,6 +71,12 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       }
     });
 
+    // Displays ARN of the CloudFront response headers policy on CloudFormation output
+    new cdk.CfnOutput(this, 'CloudFrontResponseHeadersPolicy', {
+      value: responseHeaderPolicy.node.addr,
+      description: 'ARN of the CloudFront response headers policy',
+    });
+
     /** Binding S3 bucket, OAI user and Response Headers Policy to the Cloudfront distribution */
     const cloudfrontDistribution = new cloudfront.Distribution(this, 'CloudFrontDistribution', {
       defaultRootObject: 'index.html',
