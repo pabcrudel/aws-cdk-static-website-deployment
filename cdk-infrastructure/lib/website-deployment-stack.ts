@@ -7,11 +7,13 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 export class WebsiteDeploymentStack extends cdk.Stack {
+  public readonly cloudFrontDomainName: cdk.CfnOutput;
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     /** The s3 bucket where the website will be hosted */
-    const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
+    const s3HostingBucket = new s3.Bucket(this, 'S3HostingBucket', {
       publicReadAccess: false,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
@@ -33,12 +35,12 @@ export class WebsiteDeploymentStack extends cdk.Stack {
     /** Grant read access to the S3 bucket objects through the bucket resource policy to enable OAI user access via CloudFront */
     const policyStatement = new iam.PolicyStatement({
       actions: ['s3:GetObject'],
-      resources: [websiteBucket.arnForObjects('*')],
+      resources: [s3HostingBucket.arnForObjects('*')],
       principals: [new iam.CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
     });
 
     // Adding OAI user to the website bucket
-    websiteBucket.addToResourcePolicy(policyStatement);
+    s3HostingBucket.addToResourcePolicy(policyStatement);
 
     /** Cloudfront Response Headers Policy */
     const responseHeaderPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersResponseHeaderPolicy', {
@@ -78,7 +80,7 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       defaultRootObject: 'index.html',
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
       defaultBehavior: {
-        origin: new origins.S3Origin(websiteBucket, {
+        origin: new origins.S3Origin(s3HostingBucket, {
           originAccessIdentity: cloudfrontOAI
         }),
         compress: true,
@@ -96,15 +98,15 @@ export class WebsiteDeploymentStack extends cdk.Stack {
     });
 
     /** Deploying the built files from the frontend to the s3 hosting the website */
-    new s3deploy.BucketDeployment(this, 'WebsiteBucketDeployment', {
+    new s3deploy.BucketDeployment(this, 'S3HostingBucketDeployment', {
       sources: [s3deploy.Source.asset('../website'),],
       prune: false,
-      destinationBucket: websiteBucket,
+      destinationBucket: s3HostingBucket,
       distribution: cloudfrontDistribution,
     });
 
     // Displays CloudFront domain name on CloudFormation output
-    new cdk.CfnOutput(this, 'CloudFrontDomainName', {
+    this.cloudFrontDomainName = new cdk.CfnOutput(this, 'CloudFrontDomainName', {
       value: cloudfrontDistribution.domainName,
       description: 'Domain name of the CloudFront distribution',
     });
