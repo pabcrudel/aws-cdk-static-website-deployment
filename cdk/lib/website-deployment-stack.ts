@@ -25,7 +25,7 @@ export class WebsiteDeploymentStack extends cdk.Stack {
       */
     });
 
-    /** Creating A CloudFront Origin Access Identity (OAI) user */
+    /** CloudFront Origin Access Identity (OAI) user */
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(
       this, 'CloudFrontOriginAccessIdentity'
     );
