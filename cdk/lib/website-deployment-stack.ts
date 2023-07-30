@@ -40,8 +40,18 @@ export class WebsiteDeploymentStack extends cdk.Stack {
     // Adding OAI user to the website bucket
     s3HostingBucket.addToResourcePolicy(policyStatement);
 
-    /** Cloudfront Response Headers Policy */
-    const responseHeaderPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersResponseHeaderPolicy', {
+    /**
+    * Creates a Cloudfront Response Headers Policy which applies security headers to enhance security.
+    * The security headers behavior includes the following:
+    * 
+    * - Content Security Policy
+    * - Strict Transport Security
+    * - X-Content-Type-Options
+    * - Referrer Policy
+    * - XSS Protection
+    * - Frame Options
+    */
+    const responseHeaderPolicy = new cloudfront.ResponseHeadersPolicy(this, 'CloudFrontResponseHeaderPolicy', {
       comment: 'Security headers response header policy',
       securityHeadersBehavior: {
         contentSecurityPolicy: {
